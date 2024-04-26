@@ -7,3 +7,5 @@ Presentations are a cornerstone of professional and academic communication, serv
 At the heart of our approach is a user-centric system that welcomes input instructions to be interpreted by AI. Acknowledging the capabilities and limits of current technology, we employ large language models to analyze these instructions for semantic content, and foundation AI models, like LLM and other Generative AI, to generate textual and visual elements relevant to the given topic.
 
 The project does not claim to replace the nuanced creativity of human designers but strives to provide a supplementary tool. It seeks to reduce the burden of routine aspects of presentation design, such as drafting initial content and visuals generation, by employing a layout generation module that thoughtfully places generated content into a PowerPoint format.
+
+![image](image.gif)
