@@ -9,3 +9,7 @@ At the heart of our approach is a user-centric system that welcomes input instru
 The project does not claim to replace the nuanced creativity of human designers but strives to provide a supplementary tool. It seeks to reduce the burden of routine aspects of presentation design, such as drafting initial content and visuals generation, by employing a layout generation module that thoughtfully places generated content into a PowerPoint format.
 
 ![image](image.gif)
+
+# Environment setup
+`cd LG-PPT-Generation
+pip install -r requirements.txt`
