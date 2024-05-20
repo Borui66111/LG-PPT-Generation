@@ -171,12 +171,12 @@ def get_url_content(url,mode='text',context_window=250,stream=False):
         image_array = np.frombuffer(resp.content, dtype=np.uint8)
         res = cv2.cvtColor(cv2.imdecode(image_array, cv2.IMREAD_COLOR),cv2.COLOR_BGR2RGB)
         return im_stream if stream else res
-def get_ppt(name='../output/ppt/test.pptx',icon_width=1+1/3,process=False,title=None,text=None,vis=None,topic=None,slides=config['Presentation']['min_slides'],skip_vis=False):
+def get_ppt(name='../output/ppt/test.pptx',icon_width=1+1/3,process=False,title=None,text=None,vis=None,topic=None,slides=config['Presentation']['min_slides'],skip_vis=False,chain=None):
     '''icon_width: roughly the width for icons
     transparent bg can only be .png'''
     if process or not vis:
         topic=topic if topic else 'GPT' # content
-        resp=Text.process(topic,slides=slides)
+        resp=Text.process(topic,slides=slides,chain=chain)
         title,text,vis=resp.values();Ideation.set_element(*resp.values())
         vis=[i['visual'] for i in vis]
     else:
@@ -239,8 +239,9 @@ class Ideation:
         return chat(res,create_chain(system_message=system_message,temperature=temperature))
 class Text:
     resp=None
-    def process(content=[],slides=config['Presentation']['min_slides']):
-        resp=chat(content,create_chain(functions_config={ 'functions': Outline,'function_call': { "name": 'Outline' }},system_message=f'''you are a helpful assistant to create a ppt. There should be at least {slides} body slides'''))
+    def process(content=[],slides=config['Presentation']['min_slides'],chain=None):
+        chain=chain if chain else create_chain(functions_config={ 'functions': Outline,'function_call': { "name": 'Outline' }},system_message=f'''you are a helpful assistant to create a ppt. There should be at least {slides} body slides''')
+        resp=chat(content,chain)
         title=resp['slides']
         resp1=chat([f'''topic:{content};title:'''+i for i in title],force_invoke=0,chain=create_chain(functions_config={ 'functions': Slide,'function_call': { "name": 'Slide' }},temperature=0,system_message=f'''Fill in the content according to the guide. it must contain illustrations by means of specific examples (who, when, where) and must offer insights into the topic. you must use layman\'s terms to explain complex concepts. you must engage the audience by posing questions or present hypothetical scenarios. make sure the length is no more than {config["Presentation"]['word']} words for one slide''',))
         txt=[i['content'] for i in resp1]
