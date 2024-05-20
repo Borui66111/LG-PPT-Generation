@@ -191,7 +191,7 @@ def get_ppt(name='../output/ppt/test.pptx',icon_width=1+1/3,process=False,title=
             ppt.add_text_chunk(slide.shapes,list(map(lambda x:Prs.Emu(x),[457200, 1600200, 8229600*0.8, 4525963])))
             ppt.change_text(slide.shapes[0],title[i])
             ppt.change_text(slide.shapes[2],text[i])
-            ppt.set_font(slide.shapes[2],size=Prs.Pt(18))
+            ppt.set_font(slide.shapes[2],size=18)
     
     if not skip_vis:
         for slide,imgs in zip(ppt.prs.slides,vis):
