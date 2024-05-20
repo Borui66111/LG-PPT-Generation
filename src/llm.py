@@ -8,7 +8,7 @@ from langchain.callbacks import get_openai_callback #check tokens
 # from langchain.utils.openai_functions import convert_pydantic_to_openai_function 
 from langchain_core.utils.function_calling import convert_to_openai_function
 from typing import List,Optional
-# from pydantic import BaseModel, Field #container of functions
+# from pydantic import BaseModel, Field #container of functions, incompatible
 from langchain_core.pydantic_v1 import BaseModel, Field
 from pprint import pprint as pp
 
@@ -187,7 +187,7 @@ def get_ppt(name='../output/ppt/test.pptx',icon_width=1+1/3,process=False,title=
     if title and text:
         for i in range(len(text)):
             slide=ppt.add_slide(slide_layout=5) # only title
-            ppt.add_img(slide,img='C:/Users/Borui/Dean/Computing/AI/Others/UROP/PPT_Generation/output/bg_transparent.png',pos=[0,0],width=ppt.prs.slide_width,height=ppt.prs.slide_height)
+            ppt.add_img(slide,img='../output/bg_transparent.png',pos=[0,0],width=ppt.prs.slide_width,height=ppt.prs.slide_height)
             ppt.add_text_chunk(slide.shapes,list(map(lambda x:Prs.Emu(x),[457200, 1600200, 8229600*0.8, 4525963])))
             ppt.change_text(slide.shapes[0],title[i])
             ppt.change_text(slide.shapes[2],text[i])
