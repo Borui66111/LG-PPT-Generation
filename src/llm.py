@@ -8,7 +8,8 @@ from langchain.callbacks import get_openai_callback #check tokens
 # from langchain.utils.openai_functions import convert_pydantic_to_openai_function 
 from langchain_core.utils.function_calling import convert_to_openai_function
 from typing import List,Optional
-from pydantic import BaseModel, Field #container of functions
+# from pydantic import BaseModel, Field #container of functions
+from langchain_core.pydantic_v1 import BaseModel, Field
 from pprint import pprint as pp
 
 import requests, matplotlib.pyplot as plt, random, ppt as Prs, tqdm
