@@ -33,7 +33,7 @@ openai.api_key=os.environ['OPENAI_API_KEY']
 system_message = 'You are a helpful assistant.'
 get_prompt=lambda x,system_message='': [{"role":"system","content":system_message if system_message=='' else system_message},{"role":"user","content":x}]
 get_lc_prompt = lambda x='':ChatPromptTemplate.from_messages([("system", system_message if x=='' else x),("user", "{input}")])
-quiet=False
+quiet=False; is_quiet=lambda: quiet
 
 
 '''
@@ -44,7 +44,7 @@ quiet=False
 def callback(f):
     def wrapper(*params,**kwparams):
         try:
-            if quiet == False:
+            if is_quiet() == False:
                 with get_openai_callback() as cb:
                     res=f(*params,**kwparams)
                     print(cb)
