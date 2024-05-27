@@ -11,5 +11,5 @@ The project does not claim to replace the nuanced creativity of human designers 
 ![image](image.gif)
 
 # Environment setup
-`cd LG-PPT-Generation
-pip install -r requirements.txt`
+`cd LG-PPT-Generation;`
+`pip install -r requirements.txt`
