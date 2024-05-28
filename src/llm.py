@@ -8,7 +8,8 @@ from langchain.callbacks import get_openai_callback #check tokens
 # from langchain.utils.openai_functions import convert_pydantic_to_openai_function 
 from langchain_core.utils.function_calling import convert_to_openai_function
 from typing import List,Optional
-from pydantic import BaseModel, Field #container of functions
+# from pydantic import BaseModel, Field #container of functions, incompatible
+from langchain_core.pydantic_v1 import BaseModel, Field
 from pprint import pprint as pp
 
 import requests, matplotlib.pyplot as plt, random, ppt as Prs, tqdm
@@ -32,7 +33,7 @@ openai.api_key=os.environ['OPENAI_API_KEY']
 system_message = 'You are a helpful assistant.'
 get_prompt=lambda x,system_message='': [{"role":"system","content":system_message if system_message=='' else system_message},{"role":"user","content":x}]
 get_lc_prompt = lambda x='':ChatPromptTemplate.from_messages([("system", system_message if x=='' else x),("user", "{input}")])
-quiet=False
+quiet=False; is_quiet=lambda: quiet
 
 
 '''
@@ -43,7 +44,7 @@ quiet=False
 def callback(f):
     def wrapper(*params,**kwparams):
         try:
-            if quiet == False:
+            if is_quiet() == False:
                 with get_openai_callback() as cb:
                     res=f(*params,**kwparams)
                     print(cb)
@@ -171,12 +172,12 @@ def get_url_content(url,mode='text',context_window=250,stream=False):
         image_array = np.frombuffer(resp.content, dtype=np.uint8)
         res = cv2.cvtColor(cv2.imdecode(image_array, cv2.IMREAD_COLOR),cv2.COLOR_BGR2RGB)
         return im_stream if stream else res
-def get_ppt(name='../output/ppt/test.pptx',icon_width=1+1/3,process=False,title=None,text=None,vis=None,topic=None,slides=config['Presentation']['min_slides'],skip_vis=False):
+def get_ppt(name='../output/ppt/test.pptx',icon_width=1+1/3,process=False,title=None,text=None,vis=None,topic=None,slides=config['Presentation']['min_slides'],skip_vis=False,chain=None):
     '''icon_width: roughly the width for icons
     transparent bg can only be .png'''
     if process or not vis:
         topic=topic if topic else 'GPT' # content
-        resp=Text.process(topic,slides=slides)
+        resp=Text.process(topic,slides=slides,chain=chain)
         title,text,vis=resp.values();Ideation.set_element(*resp.values())
         vis=[i['visual'] for i in vis]
     else:
@@ -186,11 +187,11 @@ def get_ppt(name='../output/ppt/test.pptx',icon_width=1+1/3,process=False,title=
     if title and text:
         for i in range(len(text)):
             slide=ppt.add_slide(slide_layout=5) # only title
-            ppt.add_img(slide,img='C:/Users/Borui/Dean/Computing/AI/Others/UROP/PPT_Generation/output/bg_transparent.png',pos=[0,0],width=ppt.prs.slide_width,height=ppt.prs.slide_height)
+            ppt.add_img(slide,img='../output/bg_transparent.png',pos=[0,0],width=ppt.prs.slide_width,height=ppt.prs.slide_height)
             ppt.add_text_chunk(slide.shapes,list(map(lambda x:Prs.Emu(x),[457200, 1600200, 8229600*0.8, 4525963])))
             ppt.change_text(slide.shapes[0],title[i])
             ppt.change_text(slide.shapes[2],text[i])
-            ppt.set_font(slide.shapes[2],size=Prs.Pt(18))
+            ppt.set_font(slide.shapes[2],size=18)
     
     if not skip_vis:
         for slide,imgs in zip(ppt.prs.slides,vis):
@@ -239,8 +240,9 @@ class Ideation:
         return chat(res,create_chain(system_message=system_message,temperature=temperature))
 class Text:
     resp=None
-    def process(content=[],slides=config['Presentation']['min_slides']):
-        resp=chat(content,create_chain(functions_config={ 'functions': Outline,'function_call': { "name": 'Outline' }},system_message=f'''you are a helpful assistant to create a ppt. There should be at least {slides} body slides'''))
+    def process(content=[],slides=config['Presentation']['min_slides'],chain=None):
+        chain=chain if chain else create_chain(functions_config={ 'functions': Outline,'function_call': { "name": 'Outline' }},system_message=f'''you are a helpful assistant to create a ppt. There should be at least {slides} body slides''')
+        resp=chat(content,chain)
         title=resp['slides']
         resp1=chat([f'''topic:{content};title:'''+i for i in title],force_invoke=0,chain=create_chain(functions_config={ 'functions': Slide,'function_call': { "name": 'Slide' }},temperature=0,system_message=f'''Fill in the content according to the guide. it must contain illustrations by means of specific examples (who, when, where) and must offer insights into the topic. you must use layman\'s terms to explain complex concepts. you must engage the audience by posing questions or present hypothetical scenarios. make sure the length is no more than {config["Presentation"]['word']} words for one slide''',))
         txt=[i['content'] for i in resp1]
