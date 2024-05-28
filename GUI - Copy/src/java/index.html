@@ -34,6 +34,10 @@
     <label for="language">Language:</label>
     <input type="text" id="language" placeholder="Language of the PPT" />
   </div>
+  <div>
+    <label for="fPath">File path to save the ppt::</label>
+    <input type="text" id="fPath" placeholder="./" />
+  </div>
   <button onclick="generatePPT()">Generate PPT</button>
 
   <div id="output"></div>
@@ -48,8 +52,9 @@
       const nSlides = document.getElementById('nSlides').value;
       const nWords = document.getElementById('nWords').value;
       const language = document.getElementById('language').value;
+      const fPath = document.getElementById('fPath').value;
 
-      const command = `python ./test.py "${topic}" "${info}" ${nSlides} ${nWords} "${language}"`;
+      const command = `python ../console/test.py "${topic}" "${info}" ${nSlides} ${nWords} "${language}" "${fPath}"`;
 
       exec(command, (error, stdout, stderr) => {
         if (error) {
