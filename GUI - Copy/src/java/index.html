@@ -32,42 +32,60 @@
   </div>
   <div>
     <label for="language">Language:</label>
-    <input type="text" id="language" placeholder="Language of the PPT" />
+    <input type="text" id="language" placeholder="Language of the PPT" value="English" />
   </div>
   <div>
-    <label for="fPath">File path to save the ppt::</label>
-    <input type="text" id="fPath" placeholder="./" />
+    <label for="fPath">File path to save the PPT:</label>
+    <input type="text" id="fPath" placeholder="./" value="./" />
   </div>
   <button onclick="generatePPT()">Generate PPT</button>
 
   <div id="output"></div>
 
   <script>
-    const { exec } = require('child_process');
+    const { spawn } = require('child_process');
     const path = require('path');
 
     function generatePPT() {
       const topic = document.getElementById('topic').value;
-      const info = document.getElementById('info').value;
+      let info = document.getElementById('info').value.replace(/\n/g, ' ');
       const nSlides = document.getElementById('nSlides').value;
       const nWords = document.getElementById('nWords').value;
       const language = document.getElementById('language').value;
+      info+="Language: "+language
       const fPath = document.getElementById('fPath').value;
 
-      const command = `python ../console/test.py "${topic}" "${info}" ${nSlides} ${nWords} "${language}" "${fPath}"`;
+      document.getElementById('output').innerText = `Starting to generate the Presentation\n`;
 
-      exec(command, (error, stdout, stderr) => {
-        if (error) {
-          document.getElementById('output').innerText = `Error: ${error.message}`;
-          return;
+      const scriptPath = path.resolve(__dirname, '..', 'console', 'test.py');
+      const pythonProcess = spawn('python', [scriptPath]);
+
+      const inputs = [topic, info, nSlides, nWords, fPath];
+      let inputIndex = 0;
+
+      pythonProcess.stdout.on('data', (data) => {
+        document.getElementById('output').innerText += data.toString();
+        if (inputIndex < inputs.length) {
+          pythonProcess.stdin.write(inputs[inputIndex] + '\n');
+          inputIndex++;
+        } else {
+          pythonProcess.stdin.end();
         }
-        if (stderr) {
-          document.getElementById('output').innerText = `Stderr: ${stderr}`;
-          return;
-        }
-        document.getElementById('output').innerText = `Output: ${stdout}`;
+      });
+
+      pythonProcess.stderr.on('data', (data) => {
+        document.getElementById('output').innerText += `Error: ${data.toString()}`;
+      });
+
+      pythonProcess.on('close', (code) => {
+        document.getElementById('output').innerText += `Process closed with code ${code}`;
       });
     }
   </script>
 </body>
 </html>
+
+
+
+      <!-- // const command = `python ../console/test.py "${topic}" "${info}" ${nSlides} ${nWords} "${language}" "${fPath}"`;
+      // const command = `python ../console/test.py; "${topic}"; "${info}"; ${nSlides}; ${nWords}; "${fPath}"`; -->
