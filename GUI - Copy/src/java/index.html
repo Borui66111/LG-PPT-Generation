@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>PPT Generator App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+    #output {
+      margin-top: 20px;
+      white-space: pre-wrap; /* Preserve whitespace formatting */
+    }
+  </style>
+</head>
+<body>
+  <h1>PPT Generator App</h1>
+  <div>
+    <label for="topic">Topic:</label>
+    <input type="text" id="topic" placeholder="Enter the topic of the PPT" />
+  </div>
+  <div>
+    <label for="info">More Info and Ideas:</label>
+    <textarea id="info" placeholder="Enter more information and ideas"></textarea>
+  </div>
+  <div>
+    <label for="nSlides">Number of Slides:</label>
+    <input type="number" id="nSlides" placeholder="Number of slides" />
+  </div>
+  <div>
+    <label for="nWords">Number of Words per Slide:</label>
+    <input type="number" id="nWords" placeholder="Number of words per slide" />
+  </div>
+  <div>
+    <label for="language">Language:</label>
+    <input type="text" id="language" placeholder="Language of the PPT" />
+  </div>
+  <button onclick="generatePPT()">Generate PPT</button>
+
+  <div id="output"></div>
+
+  <script>
+    const { exec } = require('child_process');
+    const path = require('path');
+
+    function generatePPT() {
+      const topic = document.getElementById('topic').value;
+      const info = document.getElementById('info').value;
+      const nSlides = document.getElementById('nSlides').value;
+      const nWords = document.getElementById('nWords').value;
+      const language = document.getElementById('language').value;
+
+      const command = `python ./test.py "${topic}" "${info}" ${nSlides} ${nWords} "${language}"`;
+
+      exec(command, (error, stdout, stderr) => {
+        if (error) {
+          document.getElementById('output').innerText = `Error: ${error.message}`;
+          return;
+        }
+        if (stderr) {
+          document.getElementById('output').innerText = `Stderr: ${stderr}`;
+          return;
+        }
+        document.getElementById('output').innerText = `Output: ${stdout}`;
+      });
+    }
+  </script>
+</body>
+</html>

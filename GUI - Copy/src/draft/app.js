@@ -1,0 +1,4 @@
+document.getElementById('displayPictureButton').addEventListener('click', () => { /* Add code to display pictures */ });                                                                                     
+document.getElementById('runTestButton').addEventListener('click', () => { /* Add code to run test.py */ });                                                                                                 
+document.getElementById('openFileButton').addEventListener('click', () => { /* Add code to open other files */ });                                                                                           
+                                                                                                                          
